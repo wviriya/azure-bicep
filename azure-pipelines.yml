@@ -38,8 +38,8 @@ jobs:
                 az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
 
   - deployment: 'DeployBicepTest'
-    displayName: 'DeployBicepDev'
-    dependsOn: 'Validate Bicep'
+    displayName: 'Deploy Bicep Test'
+    dependsOn: 'DeployBicepDev'
     environment: test
     strategy:
       runOnce:
