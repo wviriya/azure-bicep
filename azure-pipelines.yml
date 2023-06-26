@@ -13,12 +13,12 @@ jobs:
       displayName: 'Microsoft Security DevOps - Validate Bicep'
       inputs:
         categories: 'IaC'
-    - task: ManualIntervention@8
-      displayName: 'Approve or reject Bicep deployment'
-      inputs: 
+    - task: ManualValidation@0
+      inputs:
+        notifyUsers: 'w.viriyaampanond@outlook.com'
         instructions: 'Approve or reject Bicep deployment'
-        emailRecipients: 'w.viriyaampanond@outlook.com'
-        onTimeout: 'reject'
+        onTimeout: reject
+        timeOutInMinutes: 120
         
   - deployment: 'DeployBicepDev'
     displayName: 'Deploy Bicep Dev'
