@@ -21,9 +21,9 @@ jobs:
         onTimeout: 'reject'
         timeoutInMinutes: 60
 
-  - deployment: 'Deploy Bicep'
-    displayName: 'Deploy Bicep'
-    dependsOn: 'Validate Bicep'
+  - deployment: 'DeployBicepDev'
+    displayName: 'Deploy Bicep Dev'
+    dependsOn: 'ValidateBicep'
     environment: dev
     strategy:
       runOnce:
@@ -37,8 +37,8 @@ jobs:
               inlineScript: |
                 az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
 
-  - deployment: 'Deploy Bicep'
-    displayName: 'Deploy Bicep'
+  - deployment: 'DeployBicepTest'
+    displayName: 'DeployBicepDev'
     dependsOn: 'Validate Bicep'
     environment: test
     strategy:
@@ -53,9 +53,9 @@ jobs:
               inlineScript: |
                 az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
 
-  - deployment: 'Deploy Bicep'
-    displayName: 'Deploy Bicep'
-    dependsOn: 'Validate Bicep'
+  - deployment: 'DeployBicepProd'
+    displayName: 'Deploy Bicep Prod'
+    dependsOn: 'DeployBicepTest'
     environment: prod
     strategy:
       runOnce:
