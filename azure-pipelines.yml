@@ -2,12 +2,11 @@
 
 trigger: none
 
-pool: 
-  vmImage: 'ubuntu-latest'
-
 jobs:
   - job: 'ValidateBicep'
     displayName: 'Validate Bicep'
+    pool:
+      vmImage: ubuntu-latest
     steps:
     - task: MicrosoftSecurityDevOps@1
       displayName: 'Microsoft Security DevOps - Validate Bicep'
@@ -30,6 +29,8 @@ jobs:
   - deployment: 'DeployBicepDev'
     displayName: 'Deploy Bicep Dev'
     dependsOn: 'ManualApproval'
+    pool:
+      vmImage: ubuntu-latest
     environment: dev
     strategy:
       runOnce:
@@ -46,6 +47,8 @@ jobs:
   - deployment: 'DeployBicepTest'
     displayName: 'Deploy Bicep Test'
     dependsOn: 'DeployBicepDev'
+    pool:
+      vmImage: ubuntu-latest
     environment: test
     strategy:
       runOnce:
@@ -62,6 +65,8 @@ jobs:
   - deployment: 'DeployBicepProd'
     displayName: 'Deploy Bicep Prod'
     dependsOn: 'DeployBicepTest'
+    pool:
+      vmImage: ubuntu-latest
     environment: prod
     strategy:
       runOnce:
