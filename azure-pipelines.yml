@@ -1,0 +1,70 @@
+# create azure pipeline to deploy bicep template
+
+trigger: none
+
+pool: 
+  vmImage: 'ubuntu-latest'
+
+jobs:
+  - job: 'ValidateBicep'
+    displayName: 'Validate Bicep'
+    steps:
+    - task: MicrosoftSecurityDevOps@1
+      displayName: 'Microsoft Security DevOps - Validate Bicep'
+      inputs:
+        categories: 'IaC'
+    - task: ManualIntervention@8
+      displayName: 'Approve or reject Bicep deployment'
+      inputs: 
+        instructions: 'Approve or reject Bicep deployment'
+        emailRecipients: 'w.viriyaampanond@outlook.com'
+        onTimeout: 'reject'
+        timeoutInMinutes: 60
+
+  - deployment: 'Deploy Bicep'
+    displayName: 'Deploy Bicep'
+    dependsOn: 'Validate Bicep'
+    environment: dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Azure for GitHub'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
+
+  - deployment: 'Deploy Bicep'
+    displayName: 'Deploy Bicep'
+    dependsOn: 'Validate Bicep'
+    environment: test
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Azure for GitHub'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
+
+  - deployment: 'Deploy Bicep'
+    displayName: 'Deploy Bicep'
+    dependsOn: 'Validate Bicep'
+    environment: prod
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Azure for GitHub'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
