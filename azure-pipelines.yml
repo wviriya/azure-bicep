@@ -28,7 +28,7 @@ jobs:
 
   - deployment: 'DeployBicepDev'
     displayName: 'Deploy Bicep Dev'
-    dependsOn: 'ManualApproval'
+    dependsOn: 'ValidateBicep'
     pool:
       vmImage: ubuntu-latest
     environment: dev
