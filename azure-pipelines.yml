@@ -31,7 +31,7 @@ jobs:
           steps:
           - task: AzureCLI@2
             inputs:
-              azureSubscription: 'Azure for GitHub'
+              azureSubscription: 'AZURE_SUBSCRIPTION_NONEPROD'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
@@ -47,7 +47,7 @@ jobs:
           steps:
           - task: AzureCLI@2
             inputs:
-              azureSubscription: 'Azure for GitHub'
+              azureSubscription: 'AZURE_SUBSCRIPTION_NONEPROD'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
@@ -63,7 +63,7 @@ jobs:
           steps:
           - task: AzureCLI@2
             inputs:
-              azureSubscription: 'Azure for GitHub'
+              azureSubscription: 'AZURE_SUBSCRIPTION_PROD'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
               inlineScript: |
