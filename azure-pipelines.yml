@@ -19,8 +19,7 @@ jobs:
         instructions: 'Approve or reject Bicep deployment'
         emailRecipients: 'w.viriyaampanond@outlook.com'
         onTimeout: 'reject'
-        timeoutInMinutes: 60
-
+        
   - deployment: 'DeployBicepDev'
     displayName: 'Deploy Bicep Dev'
     dependsOn: 'ValidateBicep'
