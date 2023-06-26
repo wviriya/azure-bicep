@@ -13,18 +13,18 @@ jobs:
       inputs:
         categories: 'IaC'
 
-  - job: ManualApproval
-    displayName: 'Approve or Reject'
-    dependsOn: 'ValidateBicep'
-    pool: server
-    steps:
-    - task: ManualIntervention@8
-      displayName: 'Approve or reject Bicep deployment'
-      inputs: 
-        instructions: 'Approve or reject Bicep deployment'
-        emailRecipients: 'w.viriyaampanond@outlook.com'
-        onTimeout: 'reject'
-        timeoutInMinutes: 60
+  # - job: ManualApproval
+  #   displayName: 'Approve or Reject'
+  #   dependsOn: 'ValidateBicep'
+  #   pool: server
+  #   steps:
+  #   - task: ManualIntervention@8
+  #     displayName: 'Approve or reject Bicep deployment'
+  #     inputs: 
+  #       instructions: 'Approve or reject Bicep deployment'
+  #       emailRecipients: 'w.viriyaampanond@outlook.com'
+  #       onTimeout: 'reject'
+  #       timeoutInMinutes: 60
 
   - deployment: 'DeployBicepDev'
     displayName: 'Deploy Bicep Dev'
