@@ -2,80 +2,80 @@
 
 trigger: none
 
-pool: 
-  vmImage: ubuntu-latest
+jobs:
+  - job: 'ValidateBicep'
+    displayName: 'Validate Bicep'
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: MicrosoftSecurityDevOps@1
+      displayName: 'Microsoft Security DevOps - Validate Bicep'
+      inputs:
+        categories: 'IaC'
 
-stages:
-  - stage: validate
-    lockBehavior: sequential
-    jobs:
-      - job: 'ValidateBicep'
-        displayName: 'Validate Bicep'
-        steps:
-        - task: MicrosoftSecurityDevOps@1
-          displayName: 'Microsoft Security DevOps - Validate Bicep'
-          inputs:
-            categories: 'IaC'
-      - job: ManualApproval
-        displayName: 'Approve or Reject'
-        dependsOn: 'ValidateBicep'
-        pool: server
-        steps:
-        - task: ManualIntervention@8
-          displayName: 'Approve or reject Bicep deployment'
-          inputs: 
-            instructions: 'Approve or reject Bicep deployment'
-            emailRecipients: 'w.viriyaampanond@outlook.com'
-            onTimeout: 'reject'
-            timeoutInMinutes: 60
-  - stage: dev
-    dependsOn: 'validate'
-    jobs:
-      - deployment: 'DeployBicepDev'
-        displayName: 'Deploy Bicep Dev'
-        environment: dev
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-              - task: AzureCLI@2
-                inputs:
-                  azureSubscription: 'AZURE_SUBSCRIPTION_NONEPROD'
-                  scriptType: 'bash'
-                  scriptLocation: 'inlineScript'
-                  inlineScript: |
-                    az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
-  - stage: test
-    dependsOn: 'dev'
-    jobs:
-    - deployment: 'DeployBicepTest'
-      displayName: 'Deploy Bicep Test'
-      environment: test
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-            - task: AzureCLI@2
-              inputs:
-                azureSubscription: 'AZURE_SUBSCRIPTION_NONEPROD'
-                scriptType: 'bash'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
-  - stage: prod
-    dependsOn: 'test'
-    jobs:
-    - deployment: 'DeployBicepProd'
-      displayName: 'Deploy Bicep Prod'
-      environment: prod
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-            - task: AzureCLI@2
-              inputs:
-                azureSubscription: 'AZURE_SUBSCRIPTION_PROD'
-                scriptType: 'bash'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
+  # - job: ManualApproval
+  #   displayName: 'Approve or Reject'
+  #   dependsOn: 'ValidateBicep'
+  #   pool: server
+  #   steps:
+  #   - task: ManualIntervention@8
+  #     displayName: 'Approve or reject Bicep deployment'
+  #     inputs: 
+  #       instructions: 'Approve or reject Bicep deployment'
+  #       emailRecipients: 'w.viriyaampanond@outlook.com'
+  #       onTimeout: 'reject'
+  #       timeoutInMinutes: 60
+
+  - deployment: 'DeployBicepDev'
+    displayName: 'Deploy Bicep Dev'
+    dependsOn: 'ValidateBicep'
+    pool:
+      vmImage: ubuntu-latest
+    environment: dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'AZURE_SUBSCRIPTION_NONEPROD'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
+
+  - deployment: 'DeployBicepTest'
+    displayName: 'Deploy Bicep Test'
+    dependsOn: 'DeployBicepDev'
+    pool:
+      vmImage: ubuntu-latest
+    environment: test
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'AZURE_SUBSCRIPTION_NONEPROD'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
+
+  - deployment: 'DeployBicepProd'
+    displayName: 'Deploy Bicep Prod'
+    dependsOn: 'DeployBicepTest'
+    pool:
+      vmImage: ubuntu-latest
+    environment: prod
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'AZURE_SUBSCRIPTION_PROD'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create --resource-group app-$(Environment.Name)-rg --template-file ./main.bicep --parameters environmentName=$(Environment.Name) applicationName=api sku=F1
